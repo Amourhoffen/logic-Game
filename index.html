@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Logic: Shape Sorter Pro V3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom CSS variables based on user's provided theme for a clean, modern look */
+        :root {
+            --primary-color: #6366f1; /* Indigo 500 */
+            --secondary-color: #a78bfa; /* Violet 400 */
+            --bg-dark: #1a202c; /* Dark charcoal - for body background */
+            --bg-card: rgba(45, 55, 72, 0.3); /* Darker gray for cards - semi-transparent for glassmorphism */
+            --text-light: #e2e8f0; /* Light gray */
+            --text-muted: #a0aec0; /* Muted gray */
+            --border-color: rgba(74, 85, 104, 0.4); /* Semi-transparent border */
+            --box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(99, 102, 241, 0.15);
+            --success-color: #10b981; /* Emerald */
+            --warning-color: #f59e0b; /* Amber */
+            --danger-color: #ef4444; /* Red */
+            --sky-blue: #70c5ce; /* Default sky blue */
+            --ground-brown: #d2b48c; /* Default ground brown */
+
+            /* Sidebar specific variables (Dark Mode) - adjusted for glass effect */
+            --sidebar-bg: rgba(30, 30, 30, 0.3); /* Dark background - semi-transparent */
+            --sidebar-header-bg: rgba(42, 42, 42, 0.4);
+            --sidebar-item-bg-hover: rgba(58, 58, 58, 0.5);
+            --sidebar-item-text: #e0e0e0;
+            --sidebar-item-icon: #a0a0a0;
+            --sidebar-active-item-bg: rgba(51, 51, 51, 0.6);
+            --sidebar-active-item-text: white;
+            --sidebar-active-item-icon: white;
+            --sidebar-border: rgba(51, 51, 51, 0.4);
+            --sidebar-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+
+            /* Bottom Navbar specific variables */
+            --bottom-nav-bg: rgba(30, 30, 30, 0.4);
+            --bottom-nav-item-color: #e0e0e0;
+            --bottom-nav-active-bg: #007aff; /* iOS blue */
+            --bottom-nav-active-color: white;
+            --bottom-nav-border: rgba(51, 51, 51, 0.4);
+            --bottom-nav-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+
+            /* Game specific colors */
+            --correct-color: var(--success-color);
+            --incorrect-color: var(--danger-color);
+            --button-hover-bg: #4f46e5; /* Slightly darker indigo for hover */
+            --accent-glow: 0 0 15px rgba(99, 102, 241, 0.5); /* Primary color glow */
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            background-color: #f0f4f8;
+            color: #2d3748;
+        }
+        body.light-theme .container,
+        body.light-theme .start-screen,
+        body.light-theme .leaderboard-section,
+        body.light-theme .ads-section,
+        body.light-theme .modal-content {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-color: rgba(160, 174, 192, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 0 15px rgba(99, 102, 241, 0.05);
+        }
+        body.light-theme h1,
+        body.light-theme h2,
+        body.light-theme h3 {
+            color: var(--primary-color);
+        }
+        body.light-theme p {
+            color: #4a5568;
+        }
+        body.light-theme .score-board span {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        body.light-theme .shape-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: rgba(160, 174, 192, 0.4);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        }
+        body.light-theme .btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        body.light-theme .btn:hover {
+            background-color: var(--button-hover-bg);
+        }
+        body.light-theme .modal-input {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(160, 174, 192, 0.6);
+            color: #2d3748;
+        }
+        body.light-theme .leaderboard-list li {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        body.light-theme .level-btn {
+            background-color: rgba(0,0,0,0.05);
+            color: #2d3748;
+        }
+        body.light-theme .level-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        body.light-theme .level-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        body.light-theme .user-info input {
+            background-color: rgba(255,255,255,0.8);
+            border-color: rgba(160, 174, 192, 0.6);
+            color: #2d3748;
+        }
+        body.light-theme .user-info button {
+            background-color: var(--secondary-color);
+        }
+
+        /* High Contrast Theme */
+        body.high-contrast-theme {
+            background-color: black;
+            color: white;
+        }
+        body.high-contrast-theme .container,
+        body.high-contrast-theme .start-screen,
+        body.high-contrast-theme .leaderboard-section,
+        body.high-contrast-theme .ads-section,
+        body.high-contrast-theme .modal-content {
+            background-color: #333;
+            border: 2px solid yellow;
+            box-shadow: 0 0 10px yellow;
+        }
+        body.high-contrast-theme h1,
+        body.high-contrast-theme h2,
+        body.high-contrast-theme h3 {
+            color: yellow;
+        }
+        body.high-contrast-theme p {
+            color: white;
+        }
+        body.high-contrast-theme .score-board span {
+            background-color: #555;
+            color: yellow;
+        }
+        body.high-contrast-theme .shape-item {
+            background-color: #222;
+            border: 2px solid cyan;
+            box-shadow: 0 0 5px cyan;
+        }
+        body.high-contrast-theme .shape-item:hover {
+            border-color: yellow;
+            box-shadow: 0 0 15px yellow;
+        }
+        body.high-contrast-theme .shape-item.correct {
+            background-color: green;
+            border-color: lime;
+            box-shadow: 0 0 20px lime;
+        }
+        body.high-contrast-theme .shape-item.incorrect {
+            background-color: red;
+            border-color: orange;
+            box-shadow: 0 0 20px orange;
+        }
+        body.high-contrast-theme .btn {
+            background-color: cyan;
+            color: black;
+            border: 1px solid yellow;
+        }
+        body.high-contrast-theme .btn:hover {
+            background-color: yellow;
+            color: black;
+        }
+        body.high-contrast-theme .modal-input {
+            background-color: #444;
+            border-color: yellow;
+            color: white;
+        }
+        body.high-contrast-theme .leaderboard-list li {
+            background-color: #444;
+            color: white;
+        }
+        body.high-contrast-theme .leaderboard-list li span:first-child {
+            color: yellow;
+        }
+        body.high-contrast-theme .user-info input {
+            background-color: #444;
+            border-color: yellow;
+            color: white;
+        }
+        body.high-contrast-theme .user-info button {
+            background-color: cyan;
+            color: black;
+        }
+        body.high-contrast-theme .level-btn {
+            background-color: #222;
+            color: white;
+            border: 2px solid cyan;
+        }
+        body.high-contrast-theme .level-btn:hover {
+            background-color: #444;
+            border-color: yellow;
+        }
+        body.high-contrast-theme .level-btn.selected {
+            background-color: yellow;
+            color: black;
+            border-color: cyan;
+        }
+
+        /* Common Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        p {
+            color: var(--text-muted);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+        .score-board span {
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 0.5rem;
+        }
+
+
+        .feedback-message {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-height: 1.5em;
+        }
+
+        .shapes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .shape-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: rgba(255,255,255,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .shape-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+            box-shadow: var(--accent-glow), 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .shape-item.correct {
+            background-color: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: var(--accent-glow), 0 0 20px var(--correct-color);
+        }
+
+        .shape-item.incorrect {
+            background-color: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+            animation: shake 0.5s;
+            box-shadow: var(--accent-glow), 0 0 20px var(--incorrect-color);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .shape-item svg {
+            width: 55px;
+            height: 55px;
+            transition: fill 0.3s ease;
+        }
+
+        .shape-item.correct svg,
+        .shape-item.incorrect svg {
+            fill: white;
+        }
+
+        .controls {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 90%;
+            width: 450px;
+            color: var(--text-light);
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-content h3 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        .modal-content p {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .modal-input {
+            width: calc(100% - 2rem);
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: rgba(255,255,255,0.1);
+            color: var(--text-light);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .modal-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .modal-buttons .btn {
+            flex-grow: 1;
+        }
+
+        .leaderboard-section {
+            margin-top: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 700px;
+        }
+        .leaderboard-section h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            color: var(--text-light);
+        }
+        .leaderboard-list li {
+            background-color: rgba(0,0,0,0.1);
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .leaderboard-list li:last-child {
+            margin-bottom: 0;
+        }
+        .leaderboard-list li span:first-child {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .user-info {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .user-info span {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .user-info input {
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: var(--text-light);
+            width: calc(100% - 1rem);
+            max-width: 200px;
+            margin-right: 0.5rem;
+        }
+        .user-info button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .user-info button:hover {
+            background-color: #8b5cf6;
+        }
+
+        /* Start Screen Specific Styles */
+        .start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .start-screen h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .level-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .level-btn {
+            background-color: rgba(0,0,0,0.2);
+            color: var(--text-light);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .level-btn:hover {
+            background-color: rgba(0,0,0,0.3);
+            border-color: var(--primary-color);
+        }
+
+        .level-btn.selected {
+            background-color: var(--primary-color);
+            border-color: var(--secondary-color);
+            box-shadow: var(--accent-glow);
+            transform: scale(1.02);
+        }
+
+        /* Hide game elements initially */
+        .game-container-wrapper.hidden {
+            display: none;
+        }
+
+        /* Ads Section Styling */
+        .ads-section {
+            margin-top: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 700px; /* Match main container width */
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .ads-section h3 {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            color: var(--text-light);
+        }
+
+
+        /* Responsive adjustments for all elements */
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem; /* Reduced overall body padding */
+            }
+            .container, .start-screen, .leaderboard-section, .ads-section {
+                padding: 1rem; /* Reduced container padding */
+                border-radius: 0.75rem;
+            }
+            h1 {
+                font-size: 1.8rem; /* Smaller h1 */
+            }
+            .start-screen h2 {
+                font-size: 1.5rem; /* Smaller h2 for start screen */
+            }
+            p {
+                font-size: 0.9rem; /* Smaller paragraph text */
+            }
+            .score-board {
+                font-size: 0.85rem; /* Smaller scoreboard text */
+                gap: 0.2rem; /* Tighter spacing for scoreboard items */
+            }
+            .score-board span {
+                padding: 0.15rem 0.3rem; /* Smaller padding for scoreboard items */
+            }
+            .feedback-message {
+                font-size: 1rem; /* Smaller feedback message */
+            }
+            .shapes-grid {
+                grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* More flexible grid on small screens */
+                gap: 0.5rem; /* Tighter gap for shapes */
+            }
+            .shape-item {
+                width: 60px; /* Smaller shape item */
+                height: 60px; /* Smaller shape item */
+                border-radius: 0.5rem;
+            }
+            .shape-item svg {
+                width: 40px; /* Smaller SVG inside shape item */
+                height: 40px; /* Smaller SVG inside shape item */
+            }
+            .btn {
+                padding: 0.5rem 1rem; /* Smaller button padding */
+                font-size: 0.85rem; /* Smaller button font */
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+            .modal-content h3 {
+                font-size: 1.3rem; /* Smaller modal title */
+            }
+            .modal-input {
+                font-size: 0.9rem; /* Smaller modal input font */
+                padding: 0.6rem; /* Smaller modal input input */
+            }
+            .leaderboard-list li {
+                font-size: 0.85rem; /* Smaller leaderboard list items */
+            }
+            .user-info {
+                font-size: 0.8rem; /* Smaller user info text */
+            }
+            .user-info input {
+                padding: 0.4rem; /* Smaller user info input */
+            }
+            .user-info button {
+                padding: 0.4rem 0.8rem; /* Smaller user info button */
+            }
+            .level-btn {
+                padding: 0.7rem; /* Smaller level button padding */
+                font-size: 0.95rem; /* Slightly smaller level button font */
+            }
+            .ads-section {
+                padding: 1rem; /* Smaller padding for ads section */
+            }
+            .ads-section h3 {
+                font-size: 1.1rem; /* Smaller heading for ads section */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen" class="start-screen">
+        <h2>Choose Your Difficulty</h2>
+        <div id="levelSelectionGrid" class="level-selection-grid">
+            </div>
+        <button id="startGameBtn" class="btn">Start Game</button>
+        <div class="user-info mt-4">
+            <span id="userIdDisplayStart">ID: Loading...</span>
+            <div class="mt-2">
+                <input type="text" id="userNameInputStart" placeholder="Your Name" class="modal-input w-full max-w-xs">
+            </div>
+            <div class="mt-2">
+                <input type="number" id="userAgeInputStart" placeholder="Your Age (optional)" class="modal-input w-full max-w-xs">
+            </div>
+            <div class="mt-2">
+                <input type="text" id="userGoalInputStart" placeholder="Your Learning Goal (e.g., Improve focus)" class="modal-input w-full max-w-xs">
+            </div>
+            <button id="updateUserProfileBtnStart" class="btn mt-2">Update Profile</button>
+        </div>
+        <div class="controls mt-4">
+            <button id="toggleThemeBtn" class="btn">Toggle Theme</button>
+        </div>
+        <div id="skillHeatmapDisplay" class="leaderboard-section mt-4 text-left">
+            <h3>Your Skill Progress</h3>
+            <ul id="skillStatsList" class="leaderboard-list">
+                <li>Play to see your skill stats!</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="gameContainerWrapper" class="container game-container-wrapper hidden">
+        <h1>Visual Logic: Shape Sorter Pro</h1>
+        <div class="score-board">
+            <span id="score">Score: 0</span>
+            <span id="round">Round: 1</span>
+            <span id="level">Level: 1</span>
+            <span id="lives">Lives: 3</span>
+            <span id="xp">XP: 0</span>
+            <span id="timer">Time: 0s</span>
+        </div>
+        <p class="mb-4">Find the shape that is different from the others.</p>
+        <div id="shapes-grid" class="shapes-grid">
+            </div>
+        <div id="feedback-message" class="feedback-message"></div>
+        <div class="controls">
+            <button id="newGameBtn" class="btn">New Game</button>
+            <button id="toggleMusicBtn" class="btn">Toggle Music</button>
+        </div>
+    </div>
+
+    <div class="leaderboard-section">
+        <h3>Leaderboard (Top 10)</h3>
+        <ul id="highscoresList" class="leaderboard-list">
+            <li>Loading high scores...</li>
+        </ul>
+        <div class="controls mt-4">
+            <button id="deleteMyScoreBtn" class="btn" style="background-color: var(--danger-color);">Delete My Score</button>
+        </div>
+    </div>
+
+    <div class="ads-section">
+        <h3>Advertisement</h3>
+        <p>This is a placeholder for an ad. Your ad content would go here.</p>
+        <p>Designed to be non-intrusive and theme-friendly.</p>
+    </div>
+
+    <div id="gameOverModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="gameOverTitle">Game Over!</h3>
+            <p id="finalScoreText">Your final score: 0</p>
+            <p>Enter your name for the leaderboard:</p>
+            <input type="text" id="userNameInputModal" placeholder="Your Name" class="modal-input">
+            <div class="modal-buttons">
+                <button id="submitScoreBtn" class="btn">Submit Score</button>
+                <button id="playAgainBtn" class="btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteConfirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete your high score? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="confirmDeleteYes" class="btn" style="background-color: var(--danger-color);">Yes, Delete</button>
+                <button id="confirmDeleteNo" class="btn">No, Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Configuration & Initialization ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- User State Variables ---
+        let userId = null;
+        let userProfile = { name: "Guest", age: "", goal: "" }; // Default profile
+        let userDocRef = null;
+        let userHighScoreDocId = null; // To store the document ID of the user's high score
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('startScreen');
+        const gameContainerWrapper = document.getElementById('gameContainerWrapper');
+        const levelSelectionGrid = document.getElementById('levelSelectionGrid');
+        const startGameBtn = document.getElementById('startGameBtn');
+
+        const shapesGrid = document.getElementById('shapes-grid');
+        const scoreDisplay = document.getElementById('score');
+        const roundDisplay = document.getElementById('round');
+        const levelDisplay = document.getElementById('level');
+        const livesDisplay = document.getElementById('lives');
+        const xpDisplay = document.getElementById('xp'); // New XP display
+        const timerDisplay = document.getElementById('timer');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const toggleMusicBtn = document.getElementById('toggleMusicBtn'); // Music toggle button
+
+        const userIdDisplayStart = document.getElementById('userIdDisplayStart');
+        const userNameInputStart = document.getElementById('userNameInputStart');
+        const userAgeInputStart = document.getElementById('userAgeInputStart'); // New age input
+        const userGoalInputStart = document.getElementById('userGoalInputStart'); // New goal input
+        const updateUserProfileBtnStart = document.getElementById('updateUserProfileBtnStart'); // Renamed button
+
+        const highscoresList = document.getElementById('highscoresList');
+        const deleteMyScoreBtn = document.getElementById('deleteMyScoreBtn');
+
+        const gameOverModal = document.getElementById('gameOverModal');
+        const gameOverTitle = document.getElementById('gameOverTitle');
+        const finalScoreText = document.getElementById('finalScoreText');
+        const userNameInputModal = document.getElementById('userNameInputModal');
+        const submitScoreBtn = document.getElementById('submitScoreBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        const confirmDeleteYesBtn = document.getElementById('confirmDeleteYes');
+        const confirmDeleteNoBtn = document.getElementById('confirmDeleteNo');
+
+        const toggleThemeBtn = document.getElementById('toggleThemeBtn');
+        const skillStatsList = document.getElementById('skillStatsList'); // For skill heatmap display
+
+        // --- Game State Variables ---
+        let score = 0;
+        let round = 1;
+        let lives = 3;
+        let correctShapeIndex = -1;
+        let isClickable = true;
+        let timerInterval;
+        let timeLeft;
+        let gameStarted = false; // New state to control game visibility
+        let isTransitioningRound = false; // New flag to prevent multiple round transitions
+        let currentLogicType = ''; // To store the logic type of the current puzzle
+        let lastPuzzleExplanation = ''; // To store explanation for hints
+
+        // --- XP and Leveling ---
+        let xp = 0;
+        let level = 1;
+        const XP_PER_CORRECT_ANSWER = 10;
+        const LEVEL_THRESHOLDS = [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000]; // XP needed for levels 1, 2, 3...
+
+        // --- Skill Tracking for Heatmap ---
+        let skillStats = {
+            shape: { correct: 0, total: 0 },
+            color: { correct: 0, total: 0 },
+            rotation: { correct: 0, total: 0 },
+            internalPattern: { correct: 0, total: 0 },
+            count: { correct: 0, total: 0 },
+            symmetry: { correct: 0, total: 0 }
+        };
+
+        // --- Difficulty Levels Configuration ---
+        const levels = [
+            { name: "Easy", numShapes: 6, timeLimit: 30, diffTypes: ['shape', 'color'] },
+            { name: "Medium", numShapes: 8, timeLimit: 20, diffTypes: ['shape', 'color', 'rotation'] },
+            { name: "Hard", numShapes: 9, timeLimit: 15, diffTypes: ['shape', 'color', 'rotation', 'internalPattern', 'count'] },
+            { name: "Expert", numShapes: 12, timeLimit: 10, diffTypes: ['shape', 'color', 'rotation', 'internalPattern', 'count', 'symmetry'] }
+        ];
+        let currentLevelIndex = 0; // Current level index during game play
+        let selectedStartingLevelIndex = 0; // Selected level from start screen
+        let currentLevel = levels[currentLevelIndex];
+
+        // --- Shape Definitions (SVG Paths) ---
+        const shapeDefinitions = {
+            circle: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>',
+            square: '<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80"/></svg>',
+            triangle: '<svg viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90"/></svg>',
+            star: '<svg viewBox="0 0 100 100"><polygon points="50,10 61,35 90,40 68,60 74,90 50,75 26,90 32,60 10,40 39,35"/></svg>',
+            hexagon: '<svg viewBox="0 0 100 100"><polygon points="50,10 90,35 90,65 50,90 10,65 10,35"/></svg>',
+            diamond: '<svg viewBox="0 0 100 100"><polygon points="50,10 90,50 50,90 10,50"/></svg>',
+            cross: '<svg viewBox="0 0 100 100"><rect x="40" y="10" width="20" height="80"/><rect x="10" y="40" width="80" height="20"/></svg>'
+        };
+
+        const colors = ['#f87171', '#60a5fa', '#34d399', '#a78bfa', '#fbbf24', '#f472b6', '#6ee7b7'];
+        const rotationAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+
+        // --- Audio Variables ---
+        let backgroundMusic;
+        let backgroundMusicSynth; // Separate synth for background music
+        let correctSound;
+        let incorrectSound;
+        let levelUpSound;
+        let isMusicPlaying = false;
+        let currentTheme = 'dark-theme'; // Default theme
+
+        // --- Utility Functions ---
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Extends createSvgShape to handle internal patterns, counts, and asymmetrical dots
+        function createSvgShape(shapeKey, fillColor, rotation = 0, hasInternalPattern = false, internalCount = 0, isSymmetrical = true) {
+            let svgContent = shapeDefinitions[shapeKey];
+            let modifiedSvg = svgContent;
+
+            const shapeTagRegex = /<(circle|rect|polygon|path)([^>]*?)(\/?>)/;
+            modifiedSvg = modifiedSvg.replace(shapeTagRegex, (match, tagName, attributes, closing) => {
+                let newAttributes = attributes;
+
+                if (newAttributes.includes('fill=')) {
+                    newAttributes = newAttributes.replace(/fill="[^"]*"/, `fill="${fillColor}"`);
+                } else {
+                    newAttributes += ` fill="${fillColor}"`;
+                }
+
+                if (rotation !== 0) {
+                    if (newAttributes.includes('transform=')) {
+                        newAttributes = newAttributes.replace(/transform="([^"]*)"/, (m, existingTransform) => {
+                            return `transform="${existingTransform} rotate(${rotation} 50 50)"`;
+                        });
+                    } else {
+                        newAttributes += ` transform="rotate(${rotation} 50 50)"`;
+                    }
+                }
+                return `<${tagName}${newAttributes}${closing}`;
+            });
+
+            let additionalSvgContent = '';
+
+            if (hasInternalPattern) {
+                const isDarkColor = (color) => {
+                    const hex = color.replace('#', '');
+                    const r = parseInt(hex.substring(0, 2), 16);
+                    const g = parseInt(hex.substring(2, 4), 16);
+                    const b = parseInt(hex.substring(4, 6), 16);
+                    return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 128;
+                };
+                const internalPatternFill = isDarkColor(fillColor) ? '#f9fafb' : '#111827';
+                additionalSvgContent += `<circle cx="50" cy="50" r="15" fill="${internalPatternFill}" opacity="0.6"/>`;
+            }
+
+            if (internalCount > 0) {
+                // For simplicity, place small dots in a grid-like fashion
+                const positions = [
+                    { x: 30, y: 30 }, { x: 70, y: 30 },
+                    { x: 30, y: 70 }, { x: 70, y: 70 },
+                    { x: 50, y: 50 }, { x: 50, y: 30 },
+                    { x: 50, y: 70 }, { x: 30, y: 50 },
+                    { x: 70, y: 50 }
+                ];
+                for (let i = 0; i < internalCount && i < positions.length; i++) {
+                    additionalSvgContent += `<circle cx="${positions[i].x}" cy="${positions[i].y}" r="5" fill="black" opacity="0.7"/>`;
+                }
+            }
+
+            if (!isSymmetrical) {
+                // Add a small, off-center dot to make it asymmetrical
+                // Common shapes are assumed to be symmetrical, so this dot breaks symmetry
+                additionalSvgContent += `<circle cx="35" cy="35" r="7" fill="rgba(0,0,0,0.5)"/>`;
+            }
+
+            return modifiedSvg.replace('</svg>', `${additionalSvgContent}</svg>`);
+        }
+
+
+        // --- Game Functions ---
+        function startRound() {
+            feedbackMessage.textContent = '';
+            shapesGrid.innerHTML = ''; // Clears previous shapes
+            startTimer();
+
+            const shapeKeys = Object.keys(shapeDefinitions);
+            if (shapeKeys.length < 2) {
+                feedbackMessage.textContent = "Error: Not enough unique shapes defined to play!";
+                return;
+            }
+
+            // Define common properties for most shapes
+            const commonShapeKey = shapeKeys[getRandomInt(0, shapeKeys.length - 1)];
+            const commonColor = colors[getRandomInt(0, colors.length - 1)];
+            const commonRotation = rotationAngles[getRandomInt(0, rotationAngles.length - 1)];
+            const commonInternalPattern = false;
+            const commonInternalCount = getRandomInt(2, 5); // Common count between 2 and 5
+            const commonIsSymmetrical = true;
+
+            const shapesToDisplay = [];
+            const numShapes = currentLevel.numShapes;
+
+            // Create common shapes
+            for (let i = 0; i < numShapes - 1; i++) {
+                shapesToDisplay.push({
+                    shape: commonShapeKey,
+                    color: commonColor,
+                    rotation: commonRotation,
+                    hasInternalPattern: commonInternalPattern,
+                    internalCount: commonInternalCount,
+                    isSymmetrical: commonIsSymmetrical,
+                    isOdd: false
+                });
+            }
+
+            // Create the odd one out
+            let oddItem = {
+                shape: commonShapeKey,
+                color: commonColor,
+                rotation: commonRotation,
+                hasInternalPattern: commonInternalPattern,
+                internalCount: commonInternalCount,
+                isSymmetrical: commonIsSymmetrical,
+                isOdd: true
+            };
+
+            const availableDiffTypes = [...currentLevel.diffTypes];
+            shuffleArray(availableDiffTypes);
+
+            let differenceMade = false;
+            let explanation = "No clear difference identified."; // Default explanation
+
+            for (const type of availableDiffTypes) {
+                if (type === 'shape' && shapeKeys.length > 1) {
+                    let newShapeKey = commonShapeKey;
+                    let attempts = 0;
+                    while (newShapeKey === commonShapeKey && attempts < 100) {
+                        newShapeKey = shapeKeys[getRandomInt(0, shapeKeys.length - 1)];
+                        attempts++;
+                    }
+                    if (newShapeKey !== commonShapeKey) {
+                        oddItem.shape = newShapeKey;
+                        explanation = `The odd one out has a different shape (${oddItem.shape} vs ${commonShapeKey}).`;
+                        differenceMade = true;
+                        currentLogicType = 'shape';
+                        break;
+                    }
+                } else if (type === 'color' && colors.length > 1) {
+                    let newColor = commonColor;
+                    let attempts = 0;
+                    while (newColor === commonColor && attempts < 100) {
+                        newColor = colors[getRandomInt(0, colors.length - 1)];
+                        attempts++;
+                    }
+                    if (newColor !== commonColor) {
+                        oddItem.color = newColor;
+                        explanation = `The odd one out has a different color.`;
+                        differenceMade = true;
+                        currentLogicType = 'color';
+                        break;
+                    }
+                } else if (type === 'rotation' && rotationAngles.length > 1) {
+                    let newRotation = commonRotation;
+                    let attempts = 0;
+                    while (newRotation === commonRotation && attempts < 100) {
+                        newRotation = rotationAngles[getRandomInt(0, rotationAngles.length - 1)];
+                        attempts++;
+                    }
+                    if (newRotation !== commonRotation) {
+                        oddItem.rotation = newRotation;
+                        explanation = `The odd one out is rotated differently.`;
+                        differenceMade = true;
+                        currentLogicType = 'rotation';
+                        break;
+                    }
+                } else if (type === 'internalPattern') {
+                    oddItem.hasInternalPattern = !commonInternalPattern;
+                    explanation = `The odd one out ${oddItem.hasInternalPattern ? 'has' : 'does not have'} an internal pattern.`;
+                    differenceMade = true;
+                    currentLogicType = 'internalPattern';
+                    break;
+                } else if (type === 'count') {
+                    let newCount = commonInternalCount;
+                    let attempts = 0;
+                    while (newCount === commonInternalCount && attempts < 100) {
+                        newCount = getRandomInt(1, 6); // Different count for the odd one
+                        if (newCount === commonInternalCount) newCount = (newCount % 6) + 1; // Ensure different
+                        attempts++;
+                    }
+                    if (newCount !== commonInternalCount) {
+                        oddItem.internalCount = newCount;
+                        explanation = `The odd one out has a different number of internal elements (${oddItem.internalCount} vs ${commonInternalCount}).`;
+                        differenceMade = true;
+                        currentLogicType = 'count';
+                        break;
+                    }
+                } else if (type === 'symmetry') {
+                    oddItem.isSymmetrical = !commonIsSymmetrical; // Toggle symmetry
+                    explanation = `The odd one out is asymmetrical.`;
+                    differenceMade = true;
+                    currentLogicType = 'symmetry';
+                    break;
+                }
+            }
+
+            if (!differenceMade) {
+                console.warn("Could not apply a distinct difference based on level types. Forcing a shape difference as fallback.");
+                if (shapeKeys.length > 1) {
+                    let newShapeKey = commonShapeKey;
+                    while (newShapeKey === commonShapeKey) {
+                        newShapeKey = shapeKeys[getRandomInt(0, shapeKeys.length - 1)];
+                    }
+                    oddItem.shape = newShapeKey;
+                    explanation = `The odd one out has a different shape (fallback).`;
+                    currentLogicType = 'shape';
+                } else {
+                    console.error("Critical: Cannot generate a distinct odd shape. Game might be unplayable.");
+                    explanation = "Fatal error: Cannot generate a unique puzzle.";
+                }
+            }
+            lastPuzzleExplanation = explanation; // Store explanation for hint
+
+            shapesToDisplay.push(oddItem);
+            shuffleArray(shapesToDisplay);
+
+            shapesToDisplay.forEach((item, index) => {
+                const shapeDiv = document.createElement('div');
+                shapeDiv.classList.add('shape-item');
+                shapeDiv.innerHTML = createSvgShape(item.shape, item.color, item.rotation, item.hasInternalPattern, item.internalCount, item.isSymmetrical);
+                shapeDiv.dataset.index = index;
+                if (item.isOdd) {
+                    correctShapeIndex = index;
+                }
+                shapeDiv.addEventListener('click', handleShapeClick);
+                shapesGrid.appendChild(shapeDiv);
+            });
+
+            isClickable = true;
+        }
+
+        async function handleShapeClick(event) {
+            if (!isClickable || isTransitioningRound) return;
+            isClickable = false;
+            isTransitioningRound = true;
+
+            console.log("handleShapeClick event:", event);
+
+            const clickedItem = event.currentTarget;
+
+            if (!clickedItem) {
+                console.error("Error: event.currentTarget is null. This should not happen if isClickable and isTransitioningRound are managed correctly.");
+                isTransitioningRound = false;
+                isClickable = true;
+                return;
+            }
+
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+                console.log('AudioContext started');
+                if (!isMusicPlaying) {
+                    toggleBackgroundMusic();
+                }
+            }
+
+            clearInterval(timerInterval);
+            const clickedIndex = parseInt(clickedItem.dataset.index);
+
+            // Update skill stats for the current logic type
+            if (skillStats[currentLogicType]) {
+                skillStats[currentLogicType].total++;
+            }
+
+            if (clickedIndex === correctShapeIndex) {
+                score++;
+                xp += XP_PER_CORRECT_ANSWER; // Gain XP
+                updateXPLevelDisplay(); // Update XP and level
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.style.color = 'var(--correct-color)';
+                clickedItem.classList.add('correct');
+                if (correctSound) correctSound.triggerAttackRelease('C5', '8n');
+
+                if (skillStats[currentLogicType]) {
+                    skillStats[currentLogicType].correct++;
+                }
+            } else {
+                handleIncorrectAnswer();
+                feedbackMessage.textContent = `Incorrect. Hint: ${lastPuzzleExplanation}`; // Show hint
+                feedbackMessage.style.color = 'var(--incorrect-color)';
+                clickedItem.classList.add('incorrect');
+                if (incorrectSound) incorrectSound.triggerAttackRelease('F3', '8n');
+                const correctItem = shapesGrid.querySelector(`[data-index="${correctShapeIndex}"]`);
+                if (correctItem) {
+                    correctItem.classList.add('correct');
+                }
+            }
+
+            updateScoreDisplay();
+            saveSkillStats(); // Save skill stats after each round
+            displaySkillHeatmap(); // Update heatmap display
+
+            setTimeout(() => {
+                endCurrentRoundAndPrepareNext();
+            }, 1500);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = currentLevel.timeLimit;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!isTransitioningRound) {
+                        isTransitioningRound = true;
+                        handleIncorrectAnswer();
+                        feedbackMessage.textContent = `Time's up! Hint: ${lastPuzzleExplanation}`; // Show hint
+                        feedbackMessage.style.color = 'var(--incorrect-color)';
+                        if (incorrectSound) incorrectSound.triggerAttackRelease('F3', '8n');
+                        saveSkillStats(); // Save skill stats for time out
+                        displaySkillHeatmap(); // Update heatmap display
+                        setTimeout(() => {
+                            endCurrentRoundAndPrepareNext();
+                        }, 1500);
+                    }
+                }
+            }, 1000);
+        }
+
+        function handleIncorrectAnswer() {
+            lives--;
+            updateLivesDisplay();
+        }
+
+        function endCurrentRoundAndPrepareNext() {
+            if (lives <= 0) {
+                gameOver();
+                isTransitioningRound = false;
+            } else {
+                round++;
+                updateRoundDisplay();
+                // Adaptive difficulty: Level up every 5 rounds, or based on performance
+                if (round > 1 && (round - 1) % 5 === 0 && currentLevelIndex < levels.length - 1) {
+                    currentLevelIndex++;
+                    currentLevel = levels[currentLevelIndex];
+                    feedbackMessage.textContent = `Level Up! Entering ${currentLevel.name} Level!`;
+                    feedbackMessage.style.color = 'var(--primary-color)';
+                    if (levelUpSound) levelUpSound.triggerAttackRelease('G5', '4n');
+                    setTimeout(() => {
+                        startRound();
+                        isTransitioningRound = false;
+                    }, 1000);
+                } else {
+                    startRound();
+                    isTransitioningRound = false;
+                }
+            }
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+
+        function updateRoundDisplay() {
+            roundDisplay.textContent = `Round: ${round}`;
+            levelDisplay.textContent = `Level: ${currentLevel.name}`;
+        }
+
+        function updateLivesDisplay() {
+            livesDisplay.textContent = `Lives: ${lives}`;
+        }
+
+        function updateXPLevelDisplay() {
+            xpDisplay.textContent = `XP: ${xp}`;
+            let newLevel = 1;
+            for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+                if (xp >= LEVEL_THRESHOLDS[i]) {
+                    newLevel = i + 1;
+                    break;
+                }
+            }
+            if (newLevel !== level) {
+                level = newLevel;
+                // Optional: Play a special sound or animation for player level up
+                console.log(`Player leveled up to Level ${level}!`);
+            }
+            levelDisplay.textContent = `Level: ${level}`; // Update main level display
+        }
+
+        function newGame() {
+            clearInterval(timerInterval);
+            score = 0;
+            round = 1;
+            lives = 3;
+            xp = 0; // Reset XP for new game
+            level = 1; // Reset level for new game
+            currentLevelIndex = selectedStartingLevelIndex;
+            currentLevel = levels[currentLevelIndex];
+            isTransitioningRound = false;
+
+            updateScoreDisplay();
+            updateRoundDisplay();
+            updateLivesDisplay();
+            updateXPLevelDisplay(); // Update XP and level display
+            feedbackMessage.textContent = '';
+            startRound();
+            showGameScreen();
+            if (isMusicPlaying && backgroundMusic) {
+                backgroundMusic.start();
+            }
+        }
+
+        function gameOver() {
+            clearInterval(timerInterval);
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+            }
+            showGameOverModal();
+        }
+
+        function showGameOverModal() {
+            finalScoreText.textContent = `Your final score: ${score}`;
+            userNameInputModal.value = userProfile.name; // Pre-fill with current profile name
+            gameOverModal.classList.add('show');
+        }
+
+        function hideGameOverModal() {
+            gameOverModal.classList.remove('show');
+        }
+
+        function showDeleteConfirmModal() {
+            deleteConfirmModal.classList.add('show');
+        }
+
+        function hideDeleteConfirmModal() {
+            deleteConfirmModal.classList.remove('show');
+        }
+
+        function showStartScreen() {
+            startScreen.classList.remove('hidden');
+            gameContainerWrapper.classList.add('hidden');
+            hideGameOverModal();
+            hideDeleteConfirmModal();
+            score = 0;
+            round = 1;
+            lives = 3;
+            xp = 0;
+            level = 1;
+            updateScoreDisplay();
+            updateRoundDisplay();
+            updateLivesDisplay();
+            updateXPLevelDisplay();
+            feedbackMessage.textContent = '';
+            clearInterval(timerInterval);
+            timerDisplay.textContent = `Time: 0s`;
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+                isMusicPlaying = false;
+                toggleMusicBtn.textContent = "Toggle Music";
+            }
+            isTransitioningRound = false;
+            loadUserProfile(); // Reload profile on returning to start screen
+            displaySkillHeatmap(); // Update heatmap on start screen
+        }
+
+        function showGameScreen() {
+            startScreen.classList.add('hidden');
+            gameContainerWrapper.classList.remove('hidden');
+        }
+
+        // --- Audio Control Functions ---
+        async function initializeAudio() {
+            backgroundMusicSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: 'sine' },
+                envelope: {
+                    attack: 0.5,
+                    decay: 0.1,
+                    sustain: 0.3,
+                    release: 1
+                }
+            }).toDestination();
+            backgroundMusicSynth.volume.value = -20;
+
+            backgroundMusic = new Tone.Loop(time => {
+                const chord = ['C3', 'E3', 'G3'];
+                backgroundMusicSynth.triggerAttackRelease(chord, '2n', time);
+            }, '1n');
+
+            correctSound = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.0, release: 0.1 }
+            }).toDestination();
+            correctSound.volume.value = -10;
+
+            incorrectSound = new Tone.Synth({
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.01, decay: 0.2, sustain: 0.0, release: 0.2 }
+            }).toDestination();
+            incorrectSound.volume.value = -10;
+
+            levelUpSound = new Tone.Synth({
+                oscillator: { type: 'square' },
+                envelope: { attack: 0.05, decay: 0.3, sustain: 0.0, release: 0.3 }
+            }).toDestination();
+            levelUpSound.volume.value = -8;
+        }
+
+        function toggleBackgroundMusic() {
+            if (isMusicPlaying) {
+                backgroundMusic.stop();
+                toggleMusicBtn.textContent = "Toggle Music";
+            } else {
+                backgroundMusic.start();
+                toggleMusicBtn.textContent = "Music On";
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // --- Theme Management ---
+        function applyTheme(themeName) {
+            document.body.classList.remove('dark-theme', 'light-theme', 'high-contrast-theme');
+            document.body.classList.add(themeName);
+            currentTheme = themeName;
+            localStorage.setItem('gameTheme', themeName); // Save theme preference
+        }
+
+        function toggleTheme() {
+            if (currentTheme === 'dark-theme') {
+                applyTheme('light-theme');
+            } else if (currentTheme === 'light-theme') {
+                applyTheme('high-contrast-theme');
+            } else {
+                applyTheme('dark-theme');
+            }
+        }
+
+        // --- Skill Stats Management (Local Storage) ---
+        function saveSkillStats() {
+            localStorage.setItem('skillStats', JSON.stringify(skillStats));
+            localStorage.setItem('playerXP', xp.toString());
+            localStorage.setItem('playerLevel', level.toString());
+            console.log("Skill stats, XP, and level saved to local storage.");
+        }
+
+        function loadSkillStats() {
+            const savedSkillStats = localStorage.getItem('skillStats');
+            if (savedSkillStats) {
+                skillStats = JSON.parse(savedSkillStats);
+            }
+
+            const savedXP = localStorage.getItem('playerXP');
+            if (savedXP) {
+                xp = parseInt(savedXP);
+            }
+            const savedLevel = localStorage.getItem('playerLevel');
+            if (savedLevel) {
+                level = parseInt(savedLevel);
+            }
+            updateXPLevelDisplay(); // Update display after loading
+            console.log("Skill stats, XP, and level loaded from local storage.");
+        }
+
+        // --- User Profile Management (Local Storage) ---
+        function saveUserProfile() {
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            saveSkillStats(); // Call standalone function
+            console.log("User profile saved to local storage.");
+        }
+
+        function loadUserProfile() {
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+                userProfile = JSON.parse(savedProfile);
+            }
+            userNameInputStart.value = userProfile.name;
+            userAgeInputStart.value = userProfile.age;
+            userGoalInputStart.value = userProfile.goal;
+            userNameInputModal.value = userProfile.name; // Also update modal input
+
+            loadSkillStats(); // Call standalone function
+
+            const savedTheme = localStorage.getItem('gameTheme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                applyTheme('dark-theme'); // Default if no theme saved
+            }
+
+            console.log("User profile and theme loaded from local storage.");
+        }
+
+        function updateUserProfile() {
+            userProfile.name = userNameInputStart.value.trim();
+            userProfile.age = userAgeInputStart.value.trim();
+            userProfile.goal = userGoalInputStart.value.trim();
+            if (!userProfile.name) {
+                userProfile.name = `User-${userId ? userId.substring(0, 4) : 'Guest'}`;
+            }
+            saveUserProfile(); // Save to local storage
+            // Update Firebase user profile if authenticated
+            if (userId && userDocRef) {
+                setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal }, { merge: true })
+                    .then(() => console.log("Firebase user profile updated."))
+                    .catch(e => console.error("Error updating Firebase user profile:", e));
+            }
+            // Update high scores with new name if user has a score
+            if (userId) {
+                const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
+                const q = query(highscoresCollection, where("userId", "==", userId));
+                getDocs(q).then(querySnapshot => {
+                    querySnapshot.forEach(docSnap => {
+                        updateDoc(doc(db, `artifacts/${appId}/public/data/highscores`, docSnap.id), {
+                            userName: userProfile.name
+                        });
+                    });
+                    loadHighScores(); // Refresh leaderboard
+                }).catch(e => console.error("Error updating high score username:", e));
+            }
+            userIdDisplayStart.textContent = `ID: ${userId}`; // Update ID display
+            userNameInputModal.value = userProfile.name; // Ensure modal is updated
+        }
+
+        // --- Skill Heatmap Display ---
+        function displaySkillHeatmap() {
+            skillStatsList.innerHTML = '';
+            let hasStats = false;
+            for (const type in skillStats) {
+                const stat = skillStats[type];
+                if (stat.total > 0) {
+                    hasStats = true;
+                    const percentage = (stat.correct / stat.total * 100).toFixed(0);
+                    const li = document.createElement('li');
+                    li.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Logic: ${percentage}% (${stat.correct}/${stat.total})`;
+                    skillStatsList.appendChild(li);
+                }
+            }
+            if (!hasStats) {
+                skillStatsList.innerHTML = '<li>Play to see your skill stats!</li>';
+            }
+        }
+
+        // --- Firebase CRUD Operations ---
+        async function addHighScore(currentScore) {
+            if (!userId) {
+                console.warn("User not authenticated, cannot save score.");
+                return;
+            }
+            const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
+            try {
+                const q = query(highscoresCollection, where("userId", "==", userId));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const docToUpdate = querySnapshot.docs[0];
+                    userHighScoreDocId = docToUpdate.id; // Store for deletion
+                    if (currentScore > docToUpdate.data().score) {
+                        await updateDoc(doc(db, `artifacts/${appId}/public/data/highscores`, docToUpdate.id), {
+                            score: currentScore,
+                            userName: userProfile.name, // Use name from userProfile
+                            timestamp: new Date().toISOString()
+                        });
+                        console.log("High score updated for user:", userProfile.name);
+                    }
+                } else {
+                    const newDocRef = await addDoc(highscoresCollection, {
+                        userId: userId,
+                        userName: userProfile.name, // Use name from userProfile
+                        score: currentScore,
+                        timestamp: new Date().toISOString()
+                    });
+                    userHighScoreDocId = newDocRef.id; // Store for deletion
+                    console.log("New high score added:", userProfile.name, currentScore);
+                }
+                loadHighScores();
+            }
+            catch (e) {
+                console.error("Error adding/updating document: ", e);
+            }
+        }
+
+        async function loadHighScores() {
+            highscoresList.innerHTML = '<li>Loading scores...</li>';
+            const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
+            const q = query(highscoresCollection);
+            try {
+                const querySnapshot = await getDocs(q);
+                let scores = [];
+                let currentUserScoreExists = false;
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.userId === userId) {
+                        userHighScoreDocId = docSnap.id; // Ensure doc ID is captured on load
+                        currentUserScoreExists = true;
+                    }
+                    scores.push(data);
+                });
+
+                scores.sort((a, b) => b.score - a.score);
+                scores = scores.slice(0, 10);
+
+                highscoresList.innerHTML = '';
+                if (scores.length === 0) {
+                    highscoresList.innerHTML = '<li>No high scores yet. Be the first!</li>';
+                } else {
+                    scores.forEach((scoreData, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span>${index + 1}. ${scoreData.userName}</span> <span>${scoreData.score}</span>`;
+                        highscoresList.appendChild(li);
+                    });
+                }
+                deleteMyScoreBtn.disabled = !currentUserScoreExists;
+            }
+            catch (e) {
+                console.error("Error loading high scores: ", e);
+                highscoresList.innerHTML = '<li>Error loading scores.</li>';
+                deleteMyScoreBtn.disabled = true;
+            }
+        }
+
+        async function deleteHighScore() {
+            if (!userId || !userHighScoreDocId) {
+                console.warn("Cannot delete score: User not authenticated or no score found.");
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, `artifacts/${appId}/public/data/highscores`, userHighScoreDocId));
+                console.log("User's high score deleted.");
+                userHighScoreDocId = null;
+                loadHighScores();
+                hideDeleteConfirmModal();
+            }
+            catch (e) {
+                console.error("Error deleting high score: ", e);
+            }
+        }
+
+        // --- Firebase Authentication Listener ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                console.log("Authenticated as:", userId);
+                userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+
+                try {
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        const firebaseProfile = userDocSnap.data();
+                        userProfile.name = firebaseProfile.name || `User-${userId.substring(0, 4)}`;
+                        userProfile.age = firebaseProfile.age || "";
+                        userProfile.goal = firebaseProfile.goal || "";
+                    } else {
+                        userProfile.name = `User-${userId.substring(0, 4)}`;
+                        await setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal });
+                    }
+                }
+                catch (e) {
+                    console.error("Error loading/creating user profile from Firebase:", e);
+                    userProfile.name = `User-${userId.substring(0, 4)}`; // Fallback
+                }
+
+                userIdDisplayStart.textContent = `ID: ${userId}`;
+                userNameInputStart.value = userProfile.name;
+                userAgeInputStart.value = userProfile.age;
+                userGoalInputStart.value = userProfile.goal;
+                userNameInputModal.value = userProfile.name;
+
+                loadHighScores(); // Load Firebase high scores
+                loadUserProfile(); // Load local storage profile (overrides Firebase if local is newer, or fills in if Firebase is empty)
+                displaySkillHeatmap(); // Display heatmap after loading local stats
+                showStartScreen();
+            } else {
+                console.log("No user, attempting anonymous sign-in.");
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                }
+                catch (error) {
+                    console.error("Authentication failed:", error);
+                    userIdDisplayStart.textContent = `ID: N/A (Auth Error)`;
+                    loadUserProfile(); // Load local profile even without auth
+                    displaySkillHeatmap();
+                    showStartScreen();
+                }
+            }
+        });
+
+        // --- Event Listeners ---
+        newGameBtn.addEventListener('click', showStartScreen);
+        startGameBtn.addEventListener('click', newGame);
+        toggleMusicBtn.addEventListener('click', toggleBackgroundMusic);
+        updateUserProfileBtnStart.addEventListener('click', updateUserProfile); // Updated button listener
+
+        deleteMyScoreBtn.addEventListener('click', showDeleteConfirmModal);
+        confirmDeleteYesBtn.addEventListener('click', deleteHighScore);
+        confirmDeleteNoBtn.addEventListener('click', hideDeleteConfirmModal);
+
+        submitScoreBtn.addEventListener('click', () => {
+            userProfile.name = userNameInputModal.value.trim(); // Update name from modal
+            if (!userProfile.name) {
+                userProfile.name = `User-${userId ? userId.substring(0, 4) : 'Guest'}`;
+            }
+            saveUserProfile(); // Save updated name to local storage
+            addHighScore(score);
+            hideGameOverModal();
+            showStartScreen();
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            hideGameOverModal();
+            newGame();
+        });
+
+        toggleThemeBtn.addEventListener('click', toggleTheme);
+
+        function setupLevelSelection() {
+            levelSelectionGrid.innerHTML = '';
+            levels.forEach((level, index) => {
+                const button = document.createElement('button');
+                button.classList.add('level-btn');
+                button.textContent = level.name;
+                button.dataset.levelIndex = index;
+                if (index === selectedStartingLevelIndex) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', async () => {
+                    if (Tone.context.state !== 'running') {
+                        await Tone.start();
+                        console.log('AudioContext started');
+                    }
+
+                    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    selectedStartingLevelIndex = index;
+                });
+                levelSelectionGrid.appendChild(button);
+            });
+        }
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeAudio();
+            setupLevelSelection();
+            // Initial load of user profile and theme will happen via onAuthStateChanged
+            // If auth is quick, it will load. If not, loadUserProfile will act as fallback.
+        });
+    </script>
+</body>
+</html>
