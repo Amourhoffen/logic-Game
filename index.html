@@ -58,7 +58,6 @@
         }
         body.light-theme .container,
         body.light-theme .start-screen,
-        body.light-theme .leaderboard-section,
         body.light-theme .ads-section,
         body.light-theme .modal-content {
             background-color: rgba(255, 255, 255, 0.7);
@@ -93,9 +92,6 @@
             border-color: rgba(160, 174, 192, 0.6);
             color: #2d3748;
         }
-        body.light-theme .leaderboard-list li {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
         body.light-theme .level-btn {
             background-color: rgba(0,0,0,0.05);
             color: #2d3748;
@@ -124,7 +120,6 @@
         }
         body.high-contrast-theme .container,
         body.high-contrast-theme .start-screen,
-        body.high-contrast-theme .leaderboard-section,
         body.high-contrast-theme .ads-section,
         body.high-contrast-theme .modal-content {
             background-color: #333;
@@ -175,13 +170,6 @@
             background-color: #444;
             border-color: yellow;
             color: white;
-        }
-        body.high-contrast-theme .leaderboard-list li {
-            background-color: #444;
-            color: white;
-        }
-        body.high-contrast-theme .leaderboard-list li span:first-child {
-            color: yellow;
         }
         body.high-contrast-theme .user-info input {
             background-color: #444;
@@ -450,47 +438,8 @@
             flex-grow: 1;
         }
 
-        .leaderboard-section {
-            margin-top: 2rem;
-            background-color: var(--bg-card);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--box-shadow);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            width: 100%;
-            max-width: 700px;
-        }
-        .leaderboard-section h3 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            color: var(--text-light);
-        }
-        .leaderboard-list li {
-            background-color: rgba(0,0,0,0.1);
-            padding: 0.5rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .leaderboard-list li:last-child {
-            margin-bottom: 0;
-        }
-        .leaderboard-list li span:first-child {
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
+        /* Leaderboard section styling removed */
+
 
         .user-info {
             margin-top: 1.5rem;
@@ -615,7 +564,7 @@
             body {
                 padding: 0.5rem; /* Reduced overall body padding */
             }
-            .container, .start-screen, .leaderboard-section, .ads-section {
+            .container, .start-screen, .ads-section, .modal-content {
                 padding: 1rem; /* Reduced container padding */
                 border-radius: 0.75rem;
             }
@@ -665,9 +614,6 @@
                 font-size: 0.9rem; /* Smaller modal input font */
                 padding: 0.6rem; /* Smaller modal input input */
             }
-            .leaderboard-list li {
-                font-size: 0.85rem; /* Smaller leaderboard list items */
-            }
             .user-info {
                 font-size: 0.8rem; /* Smaller user info text */
             }
@@ -688,27 +634,165 @@
                 font-size: 1.1rem; /* Smaller heading for ads section */
             }
         }
+
+        /* Styling for the Skill Progress section */
+        #skillHeatmapDisplay {
+            margin-top: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 700px;
+            text-align: left; /* Keep text left-aligned */
+        }
+        #skillHeatmapDisplay h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center; /* Center the heading */
+        }
+        #skillStatsList {
+            list-style: none;
+            padding: 0;
+            max-height: 250px; /* Slightly increased height */
+            overflow-y: auto;
+            color: var(--text-light);
+        }
+        .skill-item {
+            background-color: rgba(0,0,0,0.15); /* Slightly darker background than general list items */
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.6rem;
+            border-radius: 0.75rem; /* More rounded corners */
+            display: flex;
+            flex-direction: column; /* Stack text and bar */
+            gap: 0.5rem; /* Space between text and bar */
+            border: 1px solid rgba(74, 85, 104, 0.2); /* Subtle border */
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .skill-item:hover {
+            background-color: rgba(0,0,0,0.25);
+            border-color: var(--secondary-color);
+        }
+        .skill-item:last-child {
+            margin-bottom: 0;
+        }
+        .skill-item .skill-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+        .skill-item .skill-text span:first-child {
+            color: var(--secondary-color); /* Highlight skill name */
+        }
+        .skill-progress-bar-container {
+            width: 100%;
+            background-color: rgba(0,0,0,0.3); /* Darker track for the bar */
+            border-radius: 9999px; /* Full rounded corners */
+            height: 8px; /* Height of the bar */
+            overflow: hidden; /* Ensure bar stays within container */
+        }
+        .skill-progress-bar {
+            height: 100%;
+            background-color: var(--primary-color); /* Primary color for the bar */
+            border-radius: 9999px;
+            transition: width 0.5s ease-out; /* Smooth transition for progress updates */
+        }
+        .skill-item-placeholder {
+            padding: 0.75rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 0.75rem;
+        }
+
+        /* Light Theme adjustments for skill heatmap */
+        body.light-theme .skill-item {
+            background-color: rgba(0,0,0,0.08);
+            border-color: rgba(160, 174, 192, 0.3);
+        }
+        body.light-theme .skill-item:hover {
+            background-color: rgba(0,0,0,0.15);
+            border-color: var(--primary-color);
+        }
+        body.light-theme .skill-item .skill-text {
+            color: #2d3748;
+        }
+        body.light-theme .skill-item .skill-text span:first-child {
+            color: var(--primary-color);
+        }
+        body.light-theme .skill-progress-bar-container {
+            background-color: rgba(0,0,0,0.1);
+        }
+        body.light-theme .skill-progress-bar {
+            background-color: var(--primary-color);
+        }
+        body.light-theme .skill-item-placeholder {
+            background-color: rgba(0,0,0,0.05);
+            color: #4a5568;
+        }
+
+        /* High Contrast Theme adjustments for skill heatmap */
+        body.high-contrast-theme .skill-item {
+            background-color: #444;
+            border: 2px solid cyan;
+            color: white;
+        }
+        body.high-contrast-theme .skill-item:hover {
+            background-color: #666;
+            border-color: yellow;
+        }
+        body.high-contrast-theme .skill-item .skill-text span:first-child {
+            color: yellow;
+        }
+        body.high-contrast-theme .skill-progress-bar-container {
+            background-color: #222;
+            border: 1px solid white;
+        }
+        body.high-contrast-theme .skill-progress-bar {
+            background-color: lime;
+        }
+        body.high-contrast-theme .skill-item-placeholder {
+            background-color: #333;
+            color: white;
+            border: 2px solid yellow;
+        }
+
+        /* Responsive adjustments for skill heatmap */
+        @media (max-width: 640px) {
+            #skillHeatmapDisplay {
+                padding: 1rem;
+            }
+            #skillHeatmapDisplay h3 {
+                font-size: 1.3rem;
+            }
+            .skill-item {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            .skill-item .skill-text {
+                font-size: 0.85rem;
+            }
+            .skill-progress-bar-container {
+                height: 6px;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="startScreen" class="start-screen">
         <h2>Choose Your Difficulty</h2>
+        <span id="userIdDisplayStart" class="mb-4">ID: Loading...</span>
         <div id="levelSelectionGrid" class="level-selection-grid">
             </div>
         <button id="startGameBtn" class="btn">Start Game</button>
-        <div class="user-info mt-4">
-            <span id="userIdDisplayStart">ID: Loading...</span>
-            <div class="mt-2">
-                <input type="text" id="userNameInputStart" placeholder="Your Name" class="modal-input w-full max-w-xs">
-            </div>
-            <div class="mt-2">
-                <input type="number" id="userAgeInputStart" placeholder="Your Age (optional)" class="modal-input w-full max-w-xs">
-            </div>
-            <div class="mt-2">
-                <input type="text" id="userGoalInputStart" placeholder="Your Learning Goal (e.g., Improve focus)" class="modal-input w-full max-w-xs">
-            </div>
-            <button id="updateUserProfileBtnStart" class="btn mt-2">Update Profile</button>
-        </div>
         <div class="controls mt-4">
             <button id="toggleThemeBtn" class="btn">Toggle Theme</button>
         </div>
@@ -740,16 +824,6 @@
         </div>
     </div>
 
-    <div class="leaderboard-section">
-        <h3>Leaderboard (Top 10)</h3>
-        <ul id="highscoresList" class="leaderboard-list">
-            <li>Loading high scores...</li>
-        </ul>
-        <div class="controls mt-4">
-            <button id="deleteMyScoreBtn" class="btn" style="background-color: var(--danger-color);">Delete My Score</button>
-        </div>
-    </div>
-
     <div class="ads-section">
         <h3>Advertisement</h3>
         <p>This is a placeholder for an ad. Your ad content would go here.</p>
@@ -760,66 +834,50 @@
         <div class="modal-content">
             <h3 id="gameOverTitle">Game Over!</h3>
             <p id="finalScoreText">Your final score: 0</p>
-            <p>Enter your name for the leaderboard:</p>
-            <input type="text" id="userNameInputModal" placeholder="Your Name" class="modal-input">
             <div class="modal-buttons">
-                <button id="submitScoreBtn" class="btn">Submit Score</button>
                 <button id="playAgainBtn" class="btn">Play Again</button>
             </div>
         </div>
     </div>
 
-    <div id="deleteConfirmModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Confirm Deletion</h3>
-            <p>Are you sure you want to delete your high score? This action cannot be undone.</p>
-            <div class="modal-buttons">
-                <button id="confirmDeleteYes" class="btn" style="background-color: var(--danger-color);">Yes, Delete</button>
-                <button id="confirmDeleteNo" class="btn">No, Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
-        // Firebase SDK Imports
+        // Firebase SDK Imports - Kept for authentication if needed, but profile storage is now local only.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration & Initialization ---
         // These variables are provided by the Canvas environment.
         // If running on GitHub Pages or other static hosting, they will be undefined or empty.
-        // For full Firebase functionality (leaderboard, cloud profiles), you would need to
-        // replace these with your actual Firebase project configuration.
+        // Firebase is now only used for anonymous authentication to get a unique user ID,
+        // as cloud profile storage and leaderboard features have been removed.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
         let app;
-        let db;
-        let auth;
+        let auth; // Firestore (db) is no longer needed if profile is local only
         let firebaseInitialized = false;
 
         // Initialize Firebase only if config is provided
         if (Object.keys(firebaseConfig).length > 0) {
             try {
                 app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
                 auth = getAuth(app);
+                // db = getFirestore(app); // Firestore is no longer needed for profile or leaderboard
                 firebaseInitialized = true;
-                console.log("Firebase successfully initialized.");
+                console.log("Firebase successfully initialized for authentication.");
             } catch (e) {
-                console.error("Failed to initialize Firebase:", e);
-                console.warn("Firebase features (leaderboard, cloud profiles) will be unavailable.");
+                console.error("Failed to initialize Firebase for authentication:", e);
+                console.warn("User ID generation might be limited without Firebase auth.");
             }
         } else {
-            console.warn("Firebase configuration not found. Firebase features (leaderboard, cloud profiles) will be unavailable.");
+            console.warn("Firebase configuration not found. User ID generation might be limited without Firebase auth.");
         }
 
         // --- User State Variables ---
         let userId = null;
-        let userProfile = { name: "Guest", age: "", goal: "" }; // Default profile
-        let userDocRef = null;
-        let userHighScoreDocId = null; // To store the document ID of the user's high score
+        let userProfile = { name: "Guest" }; // Simplified: only name is kept for local display
+        // let userDocRef = null; // No longer needed as cloud profile storage is removed
 
         // --- DOM Elements ---
         const startScreen = document.getElementById('startScreen');
@@ -839,24 +897,16 @@
         const toggleMusicBtn = document.getElementById('toggleMusicBtn'); // Music toggle button
 
         const userIdDisplayStart = document.getElementById('userIdDisplayStart');
-        const userNameInputStart = document.getElementById('userNameInputStart');
-        const userAgeInputStart = document.getElementById('userAgeInputStart'); // New age input
-        const userGoalInputStart = document.getElementById('userGoalInputStart'); // New goal input
-        const updateUserProfileBtnStart = document.getElementById('updateUserProfileBtnStart'); // Renamed button
-
-        const highscoresList = document.getElementById('highscoresList');
-        const deleteMyScoreBtn = document.getElementById('deleteMyScoreBtn');
+        // Removed profile input DOM elements
+        // const userNameInputStart = document.getElementById('userNameInputStart');
+        // const userAgeInputStart = document.getElementById('userAgeInputStart');
+        // const userGoalInputStart = document.getElementById('userGoalInputStart');
+        // const updateUserProfileBtnStart = document.getElementById('updateUserProfileBtnStart');
 
         const gameOverModal = document.getElementById('gameOverModal');
         const gameOverTitle = document.getElementById('gameOverTitle');
         const finalScoreText = document.getElementById('finalScoreText');
-        const userNameInputModal = document.getElementById('userNameInputModal');
-        const submitScoreBtn = document.getElementById('submitScoreBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
-
-        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
-        const confirmDeleteYesBtn = document.getElementById('confirmDeleteYes');
-        const confirmDeleteNoBtn = document.getElementById('confirmDeleteNo');
 
         const toggleThemeBtn = document.getElementById('toggleThemeBtn');
         const skillStatsList = document.getElementById('skillStatsList'); // For skill heatmap display
@@ -1346,7 +1396,6 @@
 
         function showGameOverModal() {
             finalScoreText.textContent = `Your final score: ${score}`;
-            userNameInputModal.value = userProfile.name; // Pre-fill with current profile name
             gameOverModal.classList.add('show');
         }
 
@@ -1354,19 +1403,10 @@
             gameOverModal.classList.remove('show');
         }
 
-        function showDeleteConfirmModal() {
-            deleteConfirmModal.classList.add('show');
-        }
-
-        function hideDeleteConfirmModal() {
-            deleteConfirmModal.classList.remove('show');
-        }
-
         function showStartScreen() {
             startScreen.classList.remove('hidden');
             gameContainerWrapper.classList.add('hidden');
             hideGameOverModal();
-            hideDeleteConfirmModal();
             score = 0;
             round = 1;
             lives = 3;
@@ -1386,7 +1426,7 @@
             }
             isTransitioningRound = false;
             loadUserProfile(); // Reload profile on returning to start screen
-            displaySkillHeatmap(); // Update heatmap on start screen
+            displaySkillHeatmap(); // Update heatmap display
         }
 
         function showGameScreen() {
@@ -1486,11 +1526,13 @@
             console.log("Skill stats, XP, and level loaded from local storage.");
         }
 
-        // --- User Profile Management (Local Storage) ---
+        // --- User Profile Management (Local Storage only) ---
+        // Profile data is now stored only in local storage.
         function saveUserProfile() {
             localStorage.setItem('userProfile', JSON.stringify(userProfile));
-            saveSkillStats(); // Call standalone function
+            saveSkillStats(); // Save skill stats along with profile
             console.log("User profile saved to local storage.");
+            // Removed Firebase profile update logic
         }
 
         function loadUserProfile() {
@@ -1498,12 +1540,12 @@
             if (savedProfile) {
                 userProfile = JSON.parse(savedProfile);
             }
-            userNameInputStart.value = userProfile.name;
-            userAgeInputStart.value = userProfile.age;
-            userGoalInputStart.value = userProfile.goal;
-            userNameInputModal.value = userProfile.name; // Also update modal input
+            // Removed profile input field updates
+            // userNameInputStart.value = userProfile.name;
+            // userAgeInputStart.value = userProfile.age;
+            // userGoalInputStart.value = userProfile.goal;
 
-            loadSkillStats(); // Call standalone function
+            loadSkillStats(); // Load skill stats from local storage
 
             const savedTheme = localStorage.getItem('gameTheme');
             if (savedTheme) {
@@ -1515,35 +1557,14 @@
             console.log("User profile and theme loaded from local storage.");
         }
 
+        // This function is no longer called by a button, but can be used internally if needed.
+        // For now, the user's name is simply "Guest" or derived from the User ID.
         function updateUserProfile() {
-            userProfile.name = userNameInputStart.value.trim();
-            userProfile.age = userAgeInputStart.value.trim();
-            userProfile.goal = userGoalInputStart.value.trim();
-            if (!userProfile.name) {
-                userProfile.name = `User-${userId ? userId.substring(0, 4) : 'Guest'}`;
-            }
-            saveUserProfile(); // Save to local storage
-            // Update Firebase user profile if authenticated
-            if (firebaseInitialized && userId && userDocRef) { // Check firebaseInitialized
-                setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal }, { merge: true })
-                    .then(() => console.log("Firebase user profile updated."))
-                    .catch(e => console.error("Error updating Firebase user profile:", e));
-            }
-            // Update high scores with new name if user has a score
-            if (firebaseInitialized && userId) { // Check firebaseInitialized
-                const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
-                const q = query(highscoresCollection, where("userId", "==", userId));
-                getDocs(q).then(querySnapshot => {
-                    querySnapshot.forEach(docSnap => {
-                        updateDoc(doc(db, `artifacts/${appId}/public/data/highscores`, docSnap.id), {
-                            userName: userProfile.name
-                        });
-                    });
-                    loadHighScores(); // Refresh leaderboard
-                }).catch(e => console.error("Error updating high score username:", e));
-            }
-            userIdDisplayStart.textContent = `ID: ${userId}`; // Update ID display
-            userNameInputModal.value = userProfile.name; // Ensure modal is updated
+            // User profile inputs are removed, so this function is simplified.
+            // If you want a default name, you can set it here.
+            userProfile.name = `User-${userId ? userId.substring(0, 4) : 'Guest'}`;
+            saveUserProfile(); // This now only saves to local storage
+            userIdDisplayStart.textContent = `ID: ${userId || 'N/A'}`; // Update ID display
         }
 
         // --- Skill Heatmap Display ---
@@ -1556,112 +1577,21 @@
                     hasStats = true;
                     const percentage = (stat.correct / stat.total * 100).toFixed(0);
                     const li = document.createElement('li');
-                    li.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Logic: ${percentage}% (${stat.correct}/${stat.total})`;
+                    li.classList.add('skill-item'); // Add a class for specific styling
+                    li.innerHTML = `
+                        <div class="skill-text">
+                            <span>${type.charAt(0).toUpperCase() + type.slice(1)} Logic:</span>
+                            <span>${percentage}% (${stat.correct}/${stat.total})</span>
+                        </div>
+                        <div class="skill-progress-bar-container">
+                            <div class="skill-progress-bar" style="width: ${percentage}%;"></div>
+                        </div>
+                    `;
                     skillStatsList.appendChild(li);
                 }
             }
             if (!hasStats) {
-                skillStatsList.innerHTML = '<li>Play to see your skill stats!</li>';
-            }
-        }
-
-        // --- Firebase CRUD Operations ---
-        async function addHighScore(currentScore) {
-            if (!firebaseInitialized || !userId) { // Check firebaseInitialized
-                console.warn("Firebase not initialized or user not authenticated, cannot save score.");
-                return;
-            }
-            const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
-            try {
-                const q = query(highscoresCollection, where("userId", "==", userId));
-                const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    const docToUpdate = querySnapshot.docs[0];
-                    userHighScoreDocId = docToUpdate.id; // Store for deletion
-                    if (currentScore > docToUpdate.data().score) {
-                        await updateDoc(doc(db, `artifacts/${appId}/public/data/highscores`, docToUpdate.id), {
-                            score: currentScore,
-                            userName: userProfile.name, // Use name from userProfile
-                            timestamp: new Date().toISOString()
-                        });
-                        console.log("High score updated for user:", userProfile.name);
-                    }
-                } else {
-                    const newDocRef = await addDoc(highscoresCollection, {
-                        userId: userId,
-                        userName: userProfile.name, // Use name from userProfile
-                        score: currentScore,
-                        timestamp: new Date().toISOString()
-                    });
-                    userHighScoreDocId = newDocRef.id; // Store for deletion
-                    console.log("New high score added:", userProfile.name, currentScore);
-                }
-                loadHighScores();
-            }
-            catch (e) {
-                console.error("Error adding/updating document: ", e);
-            }
-        }
-
-        async function loadHighScores() {
-            if (!firebaseInitialized) { // Check firebaseInitialized
-                highscoresList.innerHTML = '<li>Leaderboard unavailable (Firebase not initialized).</li>';
-                deleteMyScoreBtn.disabled = true;
-                return;
-            }
-            highscoresList.innerHTML = '<li>Loading scores...</li>';
-            const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
-            const q = query(highscoresCollection);
-            try {
-                const querySnapshot = await getDocs(q);
-                let scores = [];
-                let currentUserScoreExists = false;
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    if (data.userId === userId) {
-                        userHighScoreDocId = docSnap.id; // Ensure doc ID is captured on load
-                        currentUserScoreExists = true;
-                    }
-                    scores.push(data);
-                });
-
-                scores.sort((a, b) => b.score - a.score);
-                scores = scores.slice(0, 10);
-
-                highscoresList.innerHTML = '';
-                if (scores.length === 0) {
-                    highscoresList.innerHTML = '<li>No high scores yet. Be the first!</li>';
-                } else {
-                    scores.forEach((scoreData, index) => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<span>${index + 1}. ${scoreData.userName}</span> <span>${scoreData.score}</span>`;
-                        highscoresList.appendChild(li);
-                    });
-                }
-                deleteMyScoreBtn.disabled = !currentUserScoreExists;
-            }
-            catch (e) {
-                console.error("Error loading high scores: ", e);
-                highscoresList.innerHTML = '<li>Error loading scores.</li>';
-                deleteMyScoreBtn.disabled = true;
-            }
-        }
-
-        async function deleteHighScore() {
-            if (!firebaseInitialized || !userId || !userHighScoreDocId) { // Check firebaseInitialized
-                console.warn("Firebase not initialized or cannot delete score: User not authenticated or no score found.");
-                return;
-            }
-            try {
-                await deleteDoc(doc(db, `artifacts/${appId}/public/data/highscores`, userHighScoreDocId));
-                console.log("User's high score deleted.");
-                userHighScoreDocId = null;
-                loadHighScores();
-                hideDeleteConfirmModal();
-            }
-            catch (e) {
-                console.error("Error deleting high score: ", e);
+                skillStatsList.innerHTML = '<li class="skill-item-placeholder">Play to see your skill stats!</li>';
             }
         }
 
@@ -1672,33 +1602,15 @@
                 if (user) {
                     userId = user.uid;
                     console.log("Authenticated as:", userId);
-                    userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
-
-                    try {
-                        const userDocSnap = await getDoc(userDocRef);
-                        if (userDocSnap.exists()) {
-                            const firebaseProfile = userDocSnap.data();
-                            userProfile.name = firebaseProfile.name || `User-${userId.substring(0, 4)}`;
-                            userProfile.age = firebaseProfile.age || "";
-                            userProfile.goal = firebaseProfile.goal || "";
-                        } else {
-                            userProfile.name = `User-${userId.substring(0, 4)}`;
-                            await setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal });
-                        }
-                    }
-                    catch (e) {
-                        console.error("Error loading/creating user profile from Firebase:", e);
-                        userProfile.name = `User-${userId.substring(0, 4)}`; // Fallback
-                    }
+                    // Removed Firebase profile loading/saving logic
+                    // userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+                    // try { ... } catch (e) { ... }
 
                     userIdDisplayStart.textContent = `ID: ${userId}`;
-                    userNameInputStart.value = userProfile.name;
-                    userAgeInputStart.value = userProfile.age;
-                    userGoalInputStart.value = userProfile.goal;
-                    userNameInputModal.value = userProfile.name;
-
-                    loadHighScores(); // Load Firebase high scores
-                    // loadUserProfile() is called below in DOMContentLoaded for initial setup
+                    // Removed profile input updates
+                    // userNameInputStart.value = userProfile.name;
+                    // userAgeInputStart.value = userProfile.age;
+                    // userGoalInputStart.value = userProfile.goal;
                 } else {
                     console.log("No user, attempting anonymous sign-in.");
                     try {
@@ -1715,7 +1627,10 @@
                 }
             });
         } else {
-            userIdDisplayStart.textContent = `ID: N/A (Firebase Disabled)`;
+            // If Firebase is not initialized, generate a random ID for local use
+            userId = crypto.randomUUID();
+            userIdDisplayStart.textContent = `ID: ${userId.substring(0, 8)}... (Local)`; // Show a truncated local ID
+            console.warn("Using a local, non-persistent user ID as Firebase is disabled.");
         }
 
 
@@ -1723,22 +1638,7 @@
         newGameBtn.addEventListener('click', showStartScreen);
         startGameBtn.addEventListener('click', newGame);
         toggleMusicBtn.addEventListener('click', toggleBackgroundMusic);
-        updateUserProfileBtnStart.addEventListener('click', updateUserProfile); // Updated button listener
-
-        deleteMyScoreBtn.addEventListener('click', showDeleteConfirmModal);
-        confirmDeleteYesBtn.addEventListener('click', deleteHighScore);
-        confirmDeleteNoBtn.addEventListener('click', hideDeleteConfirmModal);
-
-        submitScoreBtn.addEventListener('click', () => {
-            userProfile.name = userNameInputModal.value.trim(); // Update name from modal
-            if (!userProfile.name) {
-                userProfile.name = `User-${userId ? userId.substring(0, 4) : 'Guest'}`;
-            }
-            saveUserProfile(); // Save updated name to local storage
-            addHighScore(score);
-            hideGameOverModal();
-            showStartScreen();
-        });
+        // Removed updateUserProfileBtnStart.addEventListener('click', updateUserProfile);
 
         playAgainBtn.addEventListener('click', () => {
             hideGameOverModal();
@@ -1778,12 +1678,6 @@
             loadUserProfile(); // Load local storage profile and theme
             displaySkillHeatmap(); // Display heatmap based on loaded local stats
             showStartScreen(); // Ensure the start screen is shown immediately
-            if (!firebaseInitialized) {
-                // If Firebase is not initialized, disable leaderboard related buttons
-                deleteMyScoreBtn.disabled = true;
-                submitScoreBtn.disabled = true;
-                userNameInputModal.placeholder = "Name (Leaderboard Disabled)";
-            }
         });
     </script>
 </body>
