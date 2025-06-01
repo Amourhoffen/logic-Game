@@ -787,12 +787,33 @@
         import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration & Initialization ---
+        // These variables are provided by the Canvas environment.
+        // If running on GitHub Pages or other static hosting, they will be undefined or empty.
+        // For full Firebase functionality (leaderboard, cloud profiles), you would need to
+        // replace these with your actual Firebase project configuration.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        let app;
+        let db;
+        let auth;
+        let firebaseInitialized = false;
+
+        // Initialize Firebase only if config is provided
+        if (Object.keys(firebaseConfig).length > 0) {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                firebaseInitialized = true;
+                console.log("Firebase successfully initialized.");
+            } catch (e) {
+                console.error("Failed to initialize Firebase:", e);
+                console.warn("Firebase features (leaderboard, cloud profiles) will be unavailable.");
+            }
+        } else {
+            console.warn("Firebase configuration not found. Firebase features (leaderboard, cloud profiles) will be unavailable.");
+        }
 
         // --- User State Variables ---
         let userId = null;
@@ -1503,13 +1524,13 @@
             }
             saveUserProfile(); // Save to local storage
             // Update Firebase user profile if authenticated
-            if (userId && userDocRef) {
+            if (firebaseInitialized && userId && userDocRef) { // Check firebaseInitialized
                 setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal }, { merge: true })
                     .then(() => console.log("Firebase user profile updated."))
                     .catch(e => console.error("Error updating Firebase user profile:", e));
             }
             // Update high scores with new name if user has a score
-            if (userId) {
+            if (firebaseInitialized && userId) { // Check firebaseInitialized
                 const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
                 const q = query(highscoresCollection, where("userId", "==", userId));
                 getDocs(q).then(querySnapshot => {
@@ -1546,8 +1567,8 @@
 
         // --- Firebase CRUD Operations ---
         async function addHighScore(currentScore) {
-            if (!userId) {
-                console.warn("User not authenticated, cannot save score.");
+            if (!firebaseInitialized || !userId) { // Check firebaseInitialized
+                console.warn("Firebase not initialized or user not authenticated, cannot save score.");
                 return;
             }
             const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
@@ -1584,6 +1605,11 @@
         }
 
         async function loadHighScores() {
+            if (!firebaseInitialized) { // Check firebaseInitialized
+                highscoresList.innerHTML = '<li>Leaderboard unavailable (Firebase not initialized).</li>';
+                deleteMyScoreBtn.disabled = true;
+                return;
+            }
             highscoresList.innerHTML = '<li>Loading scores...</li>';
             const highscoresCollection = collection(db, `artifacts/${appId}/public/data/highscores`);
             const q = query(highscoresCollection);
@@ -1623,8 +1649,8 @@
         }
 
         async function deleteHighScore() {
-            if (!userId || !userHighScoreDocId) {
-                console.warn("Cannot delete score: User not authenticated or no score found.");
+            if (!firebaseInitialized || !userId || !userHighScoreDocId) { // Check firebaseInitialized
+                console.warn("Firebase not initialized or cannot delete score: User not authenticated or no score found.");
                 return;
             }
             try {
@@ -1640,57 +1666,58 @@
         }
 
         // --- Firebase Authentication Listener ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                console.log("Authenticated as:", userId);
-                userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+        // This listener will only be set up if Firebase was successfully initialized.
+        if (firebaseInitialized) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    console.log("Authenticated as:", userId);
+                    userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
 
-                try {
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        const firebaseProfile = userDocSnap.data();
-                        userProfile.name = firebaseProfile.name || `User-${userId.substring(0, 4)}`;
-                        userProfile.age = firebaseProfile.age || "";
-                        userProfile.goal = firebaseProfile.goal || "";
-                    } else {
-                        userProfile.name = `User-${userId.substring(0, 4)}`;
-                        await setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal });
+                    try {
+                        const userDocSnap = await getDoc(userDocRef);
+                        if (userDocSnap.exists()) {
+                            const firebaseProfile = userDocSnap.data();
+                            userProfile.name = firebaseProfile.name || `User-${userId.substring(0, 4)}`;
+                            userProfile.age = firebaseProfile.age || "";
+                            userProfile.goal = firebaseProfile.goal || "";
+                        } else {
+                            userProfile.name = `User-${userId.substring(0, 4)}`;
+                            await setDoc(userDocRef, { name: userProfile.name, age: userProfile.age, goal: userProfile.goal });
+                        }
+                    }
+                    catch (e) {
+                        console.error("Error loading/creating user profile from Firebase:", e);
+                        userProfile.name = `User-${userId.substring(0, 4)}`; // Fallback
+                    }
+
+                    userIdDisplayStart.textContent = `ID: ${userId}`;
+                    userNameInputStart.value = userProfile.name;
+                    userAgeInputStart.value = userProfile.age;
+                    userGoalInputStart.value = userProfile.goal;
+                    userNameInputModal.value = userProfile.name;
+
+                    loadHighScores(); // Load Firebase high scores
+                    // loadUserProfile() is called below in DOMContentLoaded for initial setup
+                } else {
+                    console.log("No user, attempting anonymous sign-in.");
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                    catch (error) {
+                        console.error("Authentication failed:", error);
+                        userIdDisplayStart.textContent = `ID: N/A (Auth Error)`;
                     }
                 }
-                catch (e) {
-                    console.error("Error loading/creating user profile from Firebase:", e);
-                    userProfile.name = `User-${userId.substring(0, 4)}`; // Fallback
-                }
+            });
+        } else {
+            userIdDisplayStart.textContent = `ID: N/A (Firebase Disabled)`;
+        }
 
-                userIdDisplayStart.textContent = `ID: ${userId}`;
-                userNameInputStart.value = userProfile.name;
-                userAgeInputStart.value = userProfile.age;
-                userGoalInputStart.value = userProfile.goal;
-                userNameInputModal.value = userProfile.name;
-
-                loadHighScores(); // Load Firebase high scores
-                loadUserProfile(); // Load local storage profile (overrides Firebase if local is newer, or fills in if Firebase is empty)
-                displaySkillHeatmap(); // Display heatmap after loading local stats
-                showStartScreen();
-            } else {
-                console.log("No user, attempting anonymous sign-in.");
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                }
-                catch (error) {
-                    console.error("Authentication failed:", error);
-                    userIdDisplayStart.textContent = `ID: N/A (Auth Error)`;
-                    loadUserProfile(); // Load local profile even without auth
-                    displaySkillHeatmap();
-                    showStartScreen();
-                }
-            }
-        });
 
         // --- Event Listeners ---
         newGameBtn.addEventListener('click', showStartScreen);
@@ -1748,8 +1775,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeAudio();
             setupLevelSelection();
-            // Initial load of user profile and theme will happen via onAuthStateChanged
-            // If auth is quick, it will load. If not, loadUserProfile will act as fallback.
+            loadUserProfile(); // Load local storage profile and theme
+            displaySkillHeatmap(); // Display heatmap based on loaded local stats
+            showStartScreen(); // Ensure the start screen is shown immediately
+            if (!firebaseInitialized) {
+                // If Firebase is not initialized, disable leaderboard related buttons
+                deleteMyScoreBtn.disabled = true;
+                submitScoreBtn.disabled = true;
+                userNameInputModal.placeholder = "Name (Leaderboard Disabled)";
+            }
         });
     </script>
 </body>
